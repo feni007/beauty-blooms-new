@@ -1,6 +1,6 @@
 FROM php:8.2-apache
 
-# Install system dependencies and PHP extensions
+# Install system dependencies, Node.js and NPM
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -8,7 +8,9 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     zip \
-    unzip
+    unzip \
+    nodejs \
+    npm
 
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
@@ -23,6 +25,9 @@ COPY . /var/www/html
 
 # Install composer dependencies
 RUN composer install --no-dev --optimize-autoloader
+
+# Install NPM dependencies & build CSS/JS assets
+RUN npm install && npm run build
 
 # Set permissions for storage and cache
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
@@ -39,10 +44,10 @@ RUN a2enmod rewrite
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -s 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -s 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
+
 # Copy entrypoint script and make it executable
 COPY entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Expose port and set entrypoint
 EXPOSE 80
 CMD ["entrypoint.sh"]
