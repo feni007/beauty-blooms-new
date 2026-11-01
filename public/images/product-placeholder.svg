@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1100" role="img" aria-label="Beauty and Blooms product image placeholder">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f4e9df"/>
+      <stop offset="1" stop-color="#e6d2c3"/>
+    </linearGradient>
+    <linearGradient id="bottle" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#b08657"/>
+      <stop offset=".48" stop-color="#e8d6bb"/>
+      <stop offset="1" stop-color="#9b7047"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="1100" fill="url(#bg)"/>
+  <circle cx="690" cy="230" r="180" fill="#fff" opacity=".28"/>
+  <path d="M145 920c165-156 452-151 620 0" fill="none" stroke="#b08657" stroke-width="3" opacity=".45"/>
+  <rect x="326" y="365" width="248" height="430" rx="38" fill="#fbf9f6" opacity=".86"/>
+  <rect x="355" y="410" width="190" height="330" rx="26" fill="url(#bottle)"/>
+  <rect x="404" y="340" width="92" height="82" rx="12" fill="#15110f"/>
+  <path d="M450 500c-50-63-107 9 0 81 107-72 50-144 0-81Z" fill="#fbf9f6" opacity=".88"/>
+  <text x="450" y="650" text-anchor="middle" fill="#15110f" font-family="Georgia,serif" font-size="28">Beauty &amp; Blooms</text>
+</svg>
