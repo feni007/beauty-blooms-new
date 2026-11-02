@@ -1,53 +1,31 @@
 FROM php:8.2-apache
 
-# Install system dependencies, Node.js and NPM
 RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip \
-    nodejs \
-    npm
+    git unzip zip libzip-dev libpng-dev libjpeg-dev \
+    libfreetype6-dev libonig-dev libxml2-dev libpq-dev \
+    libicu-dev nodejs npm \
+    && docker-php-ext-install pdo pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd zip intl
 
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+RUN a2enmod rewrite
+RUN sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
 
-# Get latest Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 
-# Set working directory
 WORKDIR /var/www/html
 
-# Copy project files
-COPY . /var/www/html
+COPY . .
 
-# Install composer dependencies
-RUN composer install --no-dev --optimize-autoloader
+RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' \
+    /etc/apache2/sites-available/000-default.conf
 
-# Install NPM dependencies & build CSS/JS assets
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+RUN composer install --no-dev --optimize-autoloader --no-interaction
+
 RUN npm install && npm run build
 
-# Set permissions for storage and cache
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
-    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
-
-# Create sqlite database file and set permissions
-RUN mkdir -p /var/www/html/database \
-    && touch /var/www/html/database/database.sqlite \
-    && chown -R www-data:www-data /var/www/html/database \
-    && chmod -R 775 /var/www/html/database
-
-# Configure Apache document root to point to public/
-RUN a2enmod rewrite
-ENV APACHE_DOCUMENT_ROOT /var/www/html/public
-RUN sed -ri -s 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -s 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
-
-# Copy entrypoint script and make it executable
-COPY entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/entrypoint.sh
+RUN chown -R www-data:www-data storage bootstrap/cache
 
 EXPOSE 80
-CMD ["entrypoint.sh"]
+
+CMD ["apache2-foreground"]
