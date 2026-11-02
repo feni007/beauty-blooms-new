@@ -28,4 +28,4 @@ RUN chown -R www-data:www-data storage bootstrap/cache
 
 EXPOSE 80
 
-CMD ["apache2-foreground"]
+CMD ["bash", "entrypoint.sh"]
