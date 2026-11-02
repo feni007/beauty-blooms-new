@@ -1,10 +1,15 @@
 #!/bin/bash
+set -e
 
-# Create storage symlink
+cd /var/www/html
+
+mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views
+mkdir -p storage/logs bootstrap/cache
+
+chown -R www-data:www-data storage bootstrap/cache
+
 php artisan storage:link --force
 
-# Run database migrations
-php artisan migrate --force
+php artisan config:cache
 
-# Start Apache in foreground
-apache2-foreground
+exec apache2-foreground
